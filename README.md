@@ -12,10 +12,10 @@ The architecture bridges the gap between raw operational data and actionable bus
 The Data Warehouse utilizes a **Galaxy Schema (Fact Constellation)** approach. This architecture deploys multiple fact tables sharing conformed dimensions to accommodate the differing grains of the airline's business processes without creating sparse or overly complex single tables.
 
 ### Entity Relationship Diagram (ERD)
-![ERD Model](Data%20Modeling/Airline%20ERD.jpg)
+![ERD Model](Data%20Modeling/Airline%20ERD.png)
 
 ### Dimensional Model (Galaxy Schema)
-![Dimensional Model](Data%20Modeling/Airline%20Modeling.png)
+![Dimensional Model](Data%20Modeling/Airline%20Dimensional%20Modeling.png)
 
 ### Dimensional Models
 *   **`DIM_FLIGHT`:** A flattened, denormalized model. The ETL pipeline constructs this by joining original normalized OLTP data (Routes, Origin Airports, Destination Airports, Aircraft) into a single dimension to eliminate complex joins during downstream querying.
@@ -54,11 +54,6 @@ Utilizes a Row Generator and Transformer to sequentially build time attributes p
 **Flight Dimension Denormalization:**
 Performs sequential lookups across five distinct source systems to flatten the operational routing and aircraft data into a single, highly performant analytical dimension.
 ![Dim Flights Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Flights%20Job.png)
-
-**Standard Dimension Jobs:**
-![Dim Channel Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Channel%20Job.png)
-![Dim Fare Class Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Fare_Class%20Job.png)
-![Dim Interaction Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Interaction.png)
 
 ### 3. Fact Processing
 Fact table pipelines are designed for heavy analytical loads. The core transactional streams are joined with necessary operational artifacts before passing through a centralized lookup stage. Surrogate keys are resolved via parallel lookups against the previously loaded dimensions before final transformations and target loading.
