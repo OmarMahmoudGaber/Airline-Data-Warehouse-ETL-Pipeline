@@ -37,7 +37,7 @@ The extraction, transformation, and loading logic is engineered for high through
 ### 1. Orchestration & Dependency Management
 Pipeline dependencies are strictly enforced via a Master Sequence Job to ensure data integrity and failure recoverability.
 
-![Master Sequence Job](Jobs_Screenshots/Sequence Job/Sequence%20Diagram.png)
+![Master Sequence Job](Jobs_Screenshots/Sequence%20Job/Sequence%20Diagram.png)
 
 1.  **Phase 1 (`Dimensions_Sequencer`):** Standard dimensions run concurrently.
 2.  **Phase 2 (`Dim_Passengers`):** Runs sequentially after the standard dimensions to handle complex Slowly Changing Dimension (SCD Type 2) logic safely.
@@ -49,28 +49,28 @@ Dimensions are populated using dedicated jobs that extract source data, apply tr
 
 **Date Dimension Generation:**
 Utilizes a Row Generator and Transformer to sequentially build time attributes programmatically, removing the need for external flat files.
-![Dim Date Job](Jobs_Screenshots/Dimensions Jobs/Dim_Date%20Job.png)
+![Dim Date Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Date%20Job.png)
 
 **Flight Dimension Denormalization:**
 Performs sequential lookups across five distinct source systems to flatten the operational routing and aircraft data into a single, highly performant analytical dimension.
-![Dim Flights Job](Jobs_Screenshots/Dimensions Jobs/Dim_Flights%20Job.png)
+![Dim Flights Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Flights%20Job.png)
 
 **Standard Dimension Jobs:**
-![Dim Channel Job](Jobs_Screenshots/Dimensions Jobs/Dim_Channel%20Job.png)
-![Dim Fare Class Job](Jobs_Screenshots/Dimensions Jobs/Dim_Fare_Class%20Job.png)
-![Dim Interaction Job](Jobs_Screenshots/Dimensions Jobs/Dim_Interaction.png)
+![Dim Channel Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Channel%20Job.png)
+![Dim Fare Class Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Fare_Class%20Job.png)
+![Dim Interaction Job](Jobs_Screenshots/Dimensions%20Jobs/Dim_Interaction.png)
 
 ### 3. Fact Processing
 Fact table pipelines are designed for heavy analytical loads. The core transactional streams are joined with necessary operational artifacts before passing through a centralized lookup stage. Surrogate keys are resolved via parallel lookups against the previously loaded dimensions before final transformations and target loading.
 
 **Flight Activity Fact:**
-![Fact Flight Activity Job](Jobs_Screenshots/Facts Jobs/Fact_Flight_Activity%20Job.png)
+![Fact Flight Activity Job](Jobs_Screenshots/Facts%20Jobs/Fact_Flight_Activity%20Job.png)
 
 **Reservation Finances Fact:**
-![Fact Reservation Finance Job](Jobs_Screenshots/Facts Jobs/Fact_Reservation_Finance%20Job.png)
+![Fact Reservation Finance Job](Jobs_Screenshots/Facts%20Jobs/Fact_Reservation_Finance%20Job.png)
 
 **Customer Care Fact:**
-![Fact Customer Care Job](Jobs_Screenshots/Facts Jobs/Fact_Customer_Care%20Job.png)
+![Fact Customer Care Job](Jobs_Screenshots/Facts%20Jobs/Fact_Customer_Care%20Job.png)
 
 ---
 
@@ -78,8 +78,8 @@ Fact table pipelines are designed for heavy analytical loads. The core transacti
 
 To provide immediate, flexible dashboarding for specific departments, automated Data Mart pipelines calculate required KPIs:
 
-*   **`MART_FREQUENT_FLYER_BEHAVIOR` (Marketing Mart):** Aggregates granular flight activity with the Date Dimension via specialized join and aggregation stages to track overall loyalty and promotional engagement[cite: 2].
-    ![Marketing Mart Job](Jobs_Screenshots\Marts Jobs/Marketing%20Mart%20Job.png)
+*   **`MART_FREQUENT_FLYER_BEHAVIOR` (Marketing Mart):** Aggregates granular flight activity with the Date Dimension via specialized join and aggregation stages to track overall loyalty and promotional engagement.
+    ![Marketing Mart Job](Jobs_Screenshots/Marts%20Jobs/Marketing%20Mart%20Job.png)
 *   **`MART_CHANNEL_PROFITABILITY`:** Aggregates finance data at the Channel and Month level to track revenue and profit margins.
 
 ---
@@ -96,9 +96,9 @@ To ensure optimal query execution plans against massive airline datasets, specif
 ## 💡 Executive Business Intelligence (SQL Analytics)
 
 The following analytical queries demonstrate the physical model's capability to answer complex executive questions. 
-
 ### Q1: Frequent Flyer Tier Distribution
-*Calculates the proportion of frequent flyers holding elite status (Gold, Platinum, Titanium).*
+*Calculates what proportion of frequent flyers have Gold, Platinum, or Titanium status.*
+
 ```sql
 SELECT
     TIER_NAME,
@@ -107,10 +107,12 @@ SELECT
 FROM DIM_PASSENGER
 WHERE IS_CURRENT = 'Y' 
   AND TIER_NAME IN ('Gold', 'Platinum', 'Titanium')
-GROUP BY TIER_NAME; ```
- 
+GROUP BY TIER_NAME;
+```
+
 ### Q2: Upgrade Frequencies by Tier
-*Analyzes how often loyalty members utilize flight upgrades.*
+*Analyzes how often frequent flyers upgrade.*
+
 ```sql
 SELECT
     p.TIER_NAME,
@@ -120,10 +122,12 @@ SELECT
 FROM FACT_FLIGHT_ACTIVITY f
 JOIN DIM_PASSENGER p ON f.PASSENGER_SK = p.PASSENGER_SK
 WHERE p.TIER_NAME != 'None' 
-GROUP BY p.TIER_NAME;```
+GROUP BY p.TIER_NAME;
+```
 
 ### Q3: Promotional Campaign Response Rates
-*Measures the effectiveness of special fare promotions segmented by loyalty tier.*
+*Measures whether frequent flyers respond to special fare promotions.*
+
 ```sql
 SELECT
     p.TIER_NAME,
@@ -135,10 +139,12 @@ FROM FACT_FLIGHT_ACTIVITY f
 JOIN DIM_PASSENGER p ON f.PASSENGER_SK = p.PASSENGER_SK
 JOIN DIM_PROMOTION pr ON f.PROMOTION_SK = pr.PROMOTION_SK
 WHERE pr.PROMO_ID != -1 
-GROUP BY p.TIER_NAME, pr.PROMO_NAME;```
+GROUP BY p.TIER_NAME, pr.PROMO_NAME;
+```
 
-###Q4: Overnight Stay Analysis
-*Determines average and maximum overnight stay durations by passenger tier.*
+### Q4: Overnight Stay Analysis
+*Determines how long their overnight stays are based on passenger tier.*
+
 ```sql
 SELECT
     p.TIER_NAME,
@@ -147,10 +153,12 @@ SELECT
 FROM FACT_FLIGHT_ACTIVITY f
 JOIN DIM_PASSENGER p ON f.PASSENGER_SK = p.PASSENGER_SK
 WHERE f.OVERNIGHT_STAY_NIGHTS > 0
-GROUP BY p.TIER_NAME;```
+GROUP BY p.TIER_NAME;
+```
 
 ### Q5: Multi-Channel Profitability
-*Aggregates ticket revenue, operational costs, and final profit margins across booking channels.*
+*Analyzes company profit through multiple reservation channels.*
+
 ```sql
 SELECT
     c.CHANNEL_NAME,
@@ -161,10 +169,12 @@ SELECT
 FROM FACT_RESERVATION_FINANCES f
 JOIN DIM_CHANNEL c ON f.CHANNEL_SK = c.CHANNEL_SK
 GROUP BY c.CHANNEL_NAME, c.CHANNEL_TYPE
-ORDER BY TOTAL_PROFIT DESC;```
+ORDER BY TOTAL_PROFIT DESC;
+```
 
-###Q6: Customer Care Resolution Efficiency
-*Tracks the total volume of issues, average resolution time, and resulting customer satisfaction based on the severity of the interaction.*
+### Q6: Customer Care Resolution Efficiency
+*Analyzes customer care interaction type and problem severity.*
+
 ```sql
 SELECT
     i.INTERACTION_TYPE,
@@ -175,4 +185,5 @@ SELECT
 FROM FACT_CUSTOMER_CARE c
 JOIN DIM_INTERACTION i ON c.INTERACTION_SK = i.INTERACTION_SK
 GROUP BY i.INTERACTION_TYPE, i.SEVERITY
-ORDER BY TOTAL_ISSUES DESC;```
+ORDER BY TOTAL_ISSUES DESC;
+```
