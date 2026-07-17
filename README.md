@@ -1,4 +1,4 @@
-# ✈️ Airline Enterprise Data Warehouse & Analytics Architecture
+# ✈️ Airline Enterprise Data Warehouse & IBM DataStage ETL Pipeline
 
 ## 📖 Project Overview
 This project delivers a robust, end-to-end Enterprise Data Warehouse (EDW) and automated ETL pipeline for a major airline company. Designed to support executive decision-making, the analytical environment consolidates complex business processes across flight activity, frequent flyer engagement, reservation finances, and customer care interactions. 
