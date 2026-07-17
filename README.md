@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Airline-Data-Warehouse-ETL-Pipeline
-=======
 # ✈️ Airline Enterprise Data Warehouse & IBM DataStage ETL Pipeline
 
 ## 📖 Project Overview
@@ -185,4 +182,4 @@ JOIN DIM_INTERACTION i ON c.INTERACTION_SK = i.INTERACTION_SK
 GROUP BY i.INTERACTION_TYPE, i.SEVERITY
 ORDER BY TOTAL_ISSUES DESC;
 ```
->>>>>>> 881b500cd2d7d3fe4508bef8a1f8b880e3b1f0c7
+
